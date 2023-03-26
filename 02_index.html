@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="//at.alicdn.com/t/c/font_3975595_6y93gtr8uvr.js"></script>
+  <title>音乐播放器</title>
+  <style>
+    .icon {
+      width: 2em;
+      height: 2em;
+      vertical-align: -0.15em;
+      fill: currentColor;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .icon:hover {
+      opacity: 0.7;
+    }
+
+    .player .cover {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      /* 不懂，明天看看 */
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      z-index: -1;
+    }
+
+    /* 给背景图加个遮罩层 */
+    .player .cover::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    /* 播放面板样式 */
+    .player .panel {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 80px;
+      height: 160px;
+      padding: 32px;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.8);
+      border-radius: 25px;
+    }
+
+    /* 歌名 */
+    .player .panel .title {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    /* 歌手 */
+    .player .panel .author {
+      font-size: 16px;
+      margin: 12px 0;
+    }
+
+    /* 进度条的样式 */
+    .panel .progress .bar-container {
+      position: relative;
+      height: 6px;
+      background-color: #a3a3a3;
+      border-radius: 3px;
+      cursor: pointer;
+      /* overflow: hidden; */
+    }
+
+    .panel .progress .bar-container .bar {
+      position: relative;
+      height: 100%;
+      background-color: #fff;
+      border-radius: 3px;
+      /* transition: all 1s linear; */
+    }
+
+    /* 进度条上面的小球的样式 */
+    .progress .bar-container .bar .globule {
+      position: absolute;
+      top: -5px;
+      right: -8px;
+      display: block;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: red;
+    }
+
+    /* 进度条上面的时间的样式 */
+    .progress .bar-container .time {
+      position: absolute;
+      top: -30px;
+      left: 0;
+      width: 50px;
+      text-align: center;
+      background-color: rgba(166, 25, 25, 0.8);
+      border-radius: 3px;
+    }
+
+    .show {
+      display: block;
+    }
+
+    .progress .duration {
+      display: flex;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .progress .duration .total {
+      margin-left: auto;
+    }
+
+    /* 隐藏图标类名 */
+    .hide {
+      display: none;
+    }
+
+    .panel .control {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .icon-bofang,
+    .icon-zanting {
+      width: 3.5em;
+      height: 3.5em;
+    }
+
+    .icon-normal,
+    .icon-circle,
+    .icon-random {
+      display: none;
+    }
+
+    .mode.normal .icon-normal {
+      display: block;
+    }
+
+    .mode.circle .icon-circle {
+      display: block;
+    }
+
+    .mode.random .icon-random {
+      display: block;
+    }
+
+    .list {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 100px;
+      bottom: 0;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.8);
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+      transform: translateX(-110%);
+      transition: all 0.3s;
+    }
+
+    .list.show {
+      transform: translateX(0);
+    }
+
+    .list ul {
+      margin: 0;
+      padding: 0;
+    }
+
+    .list ul li {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      height: 43px;
+      padding: 4px 16px;
+      background-color: #6d6c6c;
+      border-bottom: 1px solid #999;
+      transition: all 0.3s;
+    }
+
+    .list ul li:hover {
+      cursor: pointer;
+      opacity: 0.8;
+    }
+    .list ul li.active .playMusic {
+      display: block;
+    }
+    .list .playMusic {
+      display: none;
+    }
+    .list .songTitle {
+      width: 150px;
+    }
+    
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <div class="player">
+      <!-- 背景图 -->
+      <div class="cover" style="background-image: url(./assets/img/烦恼歌.jpg)"></div>
+      <!-- 播放面板 -->
+      <div class="panel">
+        <div class="title">歌名</div>
+        <div class="author">歌手</div>
+        <div class="progress">
+          <!-- 进度条 -->
+          <div class="bar-container">
+            <div class="bar" style="width:0">
+              <!-- 进度条上面的小球 -->
+              <span class="globule"></span>
+            </div>
+            <span class="time hide">3:29</span>
+            <!-- <input type="range"> 进度条 -->
+          </div>
+          <!-- 时间 -->
+          <div class="duration">
+            <span class="cuurent">0 : 00</span>
+            <span class="total">4:15</span>
+          </div>
+        </div>
+        <!-- 控制面板 -->
+        <div class="control">
+          <div class="mode normal">
+            <svg class="icon icon-normal" aria-hidden="true">
+              <use xlink:href="#icon-xunhuanbofang"></use>
+            </svg>
+            <svg class="icon icon-circle" aria-hidden="true">
+              <use xlink:href="#icon-danquxunhuan"></use>
+            </svg>
+            <svg class="icon icon-random" aria-hidden="true">
+              <use xlink:href="#icon-suijisenlin"></use>
+            </svg>
+          </div>
+          <svg class="icon icon-shangyishou" aria-hidden="true">
+            <use xlink:href="#icon-shangyishou"></use>
+          </svg>
+          <svg class="icon icon-bofang" aria-hidden="true">
+            <use xlink:href="#icon-bofang"></use>
+          </svg>
+          <svg class="icon icon-zanting hide" aria-hidden="true">
+            <use xlink:href="#icon-zanting"></use>
+          </svg>
+          <svg class="icon icon-xiayishou1" aria-hidden="true">
+            <use xlink:href="#icon-xiayishou1"></use>
+          </svg>
+          <svg class="icon icon-liebiao" aria-hidden="true">
+            <use xlink:href="#icon-liebiao"></use>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="list">
+      <!-- <ul>
+        <li>歌曲一</li>
+        <li>歌曲二</li>
+      </ul> -->
+    </div>
+  </div>
+  <script>
+    // #region 音乐列表数据
+    const musicList = [
+      {
+        "id": "0",
+        "title": "真的吗",
+        "author": "莫文蔚",
+        "albumn": "我要说I Say",
+        "lyric": "/assets/music/lyric_真的吗.json",
+        "url": "./assets/music/莫文蔚-真的吗.mp3",
+        "cover": "./assets/img/真的吗.jpg"
+      },
+      {
+        "id": "1",
+        "title": "水星记",
+        "author": "郭顶",
+        "albumn": "飞行器的执行周期",
+        "lyric": "/assets/music/lyric_水星记.json",
+        "url": "/assets/music/水星记.mp3",
+        "cover": "/assets/img/水星记.jpg"
+      },
+      {
+        "id": "2",
+        "title": "后来的我们",
+        "author": "五月天",
+        "albumn": "后来的我们",
+        "lyric": "/assets/music/lyric_后来的我们.json",
+        "url": "/assets/music/后来的我们.mp3",
+        "cover": "/assets/img/后来的我们.jpg"
+      },
+      {
+        "id": "3",
+        "title": "假装",
+        "author": "陈雪凝",
+        "albumn": "拾陆",
+        "lyric": "/assets/music/lyric_假装.json",
+        "url": "/assets/music/假装.mp3",
+        "cover": "/assets/img/假装.jpg"
+      },
+      {
+        "id": "4",
+        "title": "烦恼歌",
+        "author": "张学友",
+        "albumn": "在你身边",
+        "lyric": "/assets/music/lyric_烦恼歌.json",
+        "url": "/assets/music/烦恼歌.mp3",
+        "cover": "/assets/img/烦恼歌.jpg"
+      }
+    ]
+    // #endregion 音乐列表数据
+
+
+    const $ = s => document.querySelector(s);
+
+    // let currentAudio = musicList[index]; // 当前播放的音乐
+    // 音乐对象
+    const audioObject = new Audio();
+    // 音乐地址路径
+    // audioObject.src = currentAudio.url;
+
+    const playIcon = $(".icon-bofang"); // 播放图标
+    const pauseIcon = $(".icon-zanting"); // 暂停图标
+    const title = $(".title"); // 歌名
+    const author = $(".author"); // 歌手
+    const cover = $(".cover"); // 背景图片
+    const total = $(".total"); // 歌曲总时间
+    const cuurent = $(".cuurent"); // 歌曲当前播放时间
+    const bar = $(".bar"); // 歌曲播放进度
+    const songTime = $(".bar-container .time"); // 歌曲播放时间 
+    const iconShangyishou = $(".icon-shangyishou"); // 上一曲
+    const iconXiayishou1 = $(".icon-xiayishou1"); // 下一曲
+    const barContainer = $(".bar-container"); // 进度条
+    const globule = $(".bar .globule"); // 进度条上面的小球
+    const panel = $(".panel"); // 控制面板
+    const modeIcon = $(".mode"); // 状态
+    const list = $(".list"); // 列表
+    const listIcon = $(".icon-liebiao"); // 列表图标
+
+    let index = 0; // 当前播放音乐的下标
+    let modes = ["normal", "circle", "random"];
+    let modeIndex = 0; // normal:正常模式，circle: 单曲循环，random: 随机播放
+
+    // 设置播放上一曲 / 下一曲
+    setAudio(index);
+    renderList(); // 播放列表渲染
+
+    let clock = null; // 循环定时器
+    // #region 音乐的播放/暂停
+    playIcon.onclick = function () {
+      // 音乐播放
+      audioObject.play();
+      this.classList.add("hide");
+      pauseIcon.classList.remove("hide");
+      clock = setInterval(() => {
+        // audioObject.currentTime 获取当前音乐播放时间
+        cuurent.innerText = secondToStr(audioObject.currentTime);
+        // 当前播放时间 / 歌曲总时间 来算出时间百分比
+        // bar.style.width = (parseInt(audioObject.currentTime) / parseInt(audioObject.duration)) * 100 + '%';
+        bar.style.width = (audioObject.currentTime / audioObject.duration) * 100 + '%';
+      }, 1000);
+    }
+
+    pauseIcon.onclick = function () {
+      // 音乐暂停
+      audioObject.pause();
+      this.classList.add("hide");
+      playIcon.classList.remove("hide");
+      clearInterval(clock);
+    }
+    // #endregion 音乐的播放/暂停
+
+    // #region 音乐的上一曲/下一曲
+    // 上一曲
+    iconShangyishou.onclick = playPrevWithMode;
+
+    // 下一曲
+    iconXiayishou1.onclick = playNextWithMode;
+    // #endregion 音乐的上一曲/下一曲
+
+    // 进度条的点击事件
+    barContainer.onclick = function (event) {
+      // percent = 点击元素的位置 / 进度条的总宽度
+      /* const percent = event.offsetX / this.offsetWidth;
+      bar.style.width = percent * 100 + '%';
+
+      // 歌曲当前播放时间 = 歌曲总时间 * 点击进度的进度
+      audioObject.currentTime = audioObject.duration * percent; */
+
+      let rect = this.getBoundingClientRect();
+      let place = event.clientX - rect.x;
+      const percent = place / this.offsetWidth;
+      bar.style.width = percent * 100 + '%';
+      audioObject.currentTime = audioObject.duration * percent;
+      cuurent.innerText = secondToStr(audioObject.currentTime);
+      songTime.classList.add("hide");
+      songTime.classList.remove("show");
+    }
+
+    let isDrag = false; // 判断进度条是否处于拖拽中
+    // pc端鼠标按下事件
+    globule.onmousedown = onmousedown;
+    // 移动端按下事件
+    globule.ontouchstart = onmousedown;
+
+    // pc端鼠标松开事件
+    globule.onmouseup = onmouseup;
+    // 移动端松开事件
+    globule.ontouchend = onmouseup;
+
+
+
+    function onmousedown() {
+      console.log('按下');
+      isDrag = true;
+    }
+    function onmouseup() {
+      console.log('松开');
+      isDrag = false;
+      songTime.classList.add("hide");
+      songTime.classList.remove("show");
+    }
+    let clock2 = null; // 用于优化拖动卡顿
+    // pc端移入事件
+    panel.onmousemove = onmousemove;
+    // 移动端移入事件
+    panel.ontouchmove = onmousemove;
+
+
+    // 鼠标进入事件
+    function onmousemove(event) {
+      let rect = barContainer.getBoundingClientRect();
+      let clientX = event.clientX ?? event.changedTouches[0].clientX;
+      let place = clientX - rect.x; // 当前鼠标移动的位置 
+      let barContainerWidth = barContainer.offsetWidth; // 进度条的宽度
+      const percent = place / barContainerWidth;
+
+      let target = event.target === bar || event.target === barContainer || event.target === globule;
+
+      if (target) {
+        songTime.classList.remove("hide");
+        songTime.classList.add("show");
+        songTime.style.left = place + -20 + "px";
+      } else {
+        songTime.classList.add("hide");
+        songTime.classList.remove("show");
+      }
+
+      songTime.innerText = secondToStr(audioObject.duration * percent)
+      if (isDrag) {
+        if (place >= barContainerWidth) {
+          // 进度条的宽度
+          bar.style.width = 100 + '%';
+          // 显示时间的样式
+          songTime.style.left = barContainerWidth + -20 + "px";
+          songTime.innerText = secondToStr(audioObject.duration);
+        } else if (place <= 0) {
+          bar.style.width = 0 + '%';
+          songTime.style.left = 0 + -20 + "px";
+          songTime.innerText = '0:00';
+        } else {
+          bar.style.width = percent * 100 + '%';
+        }
+        if (clock2) {
+          clearTimeout(clock2);
+        }
+        clock2 = setTimeout(() => {
+          audioObject.currentTime = audioObject.duration * percent;
+          // 当前时间
+          cuurent.innerText = secondToStr(audioObject.currentTime);
+        }, 100);
+      }
+    }
+
+    // 模式切换
+    modeIcon.onclick = function () {
+      modeIndex = ++modeIndex % modes.length;
+      this.classList.remove(...modes);
+      this.classList.add(modes[modeIndex]);
+    }
+
+    // audioObject.oncanplay 音乐加载完成之后触发的函数
+    audioObject.oncanplay = function () {
+      total.innerText = secondToStr(this.duration); // 歌曲总时间
+    }
+
+    // audioObject.onended 歌曲播放完毕之后执行的函数
+    audioObject.onended = playNextWithMode;
+
+    // 带有模式播放下一曲
+    function playNextWithMode() {
+      // renderList(); // 渲染歌曲列表
+       bar.style.width = 0 + '%';
+      // 正常模式
+      if (modes[modeIndex] === "normal") {
+        playNext();
+        // 单曲循环
+      } else if (modes[modeIndex] === "circle") {
+        playIndex(index);
+        // 随机播放
+      } else if (modes[modeIndex] === "random") {
+        let newIndex = Math.floor(Math.random() * musicList.length);
+        playIndex(newIndex);
+      }
+    }
+
+    // 带有模式播放上一曲
+    function playPrevWithMode() {
+      // renderList(); // 渲染歌曲列表
+      if (modes[modeIndex] === "normal") {
+        playPrev();
+        // 单曲循环
+      } else if (modes[modeIndex] === "circle") {
+        playIndex(index);
+        // 随机播放
+      } else if (modes[modeIndex] === "random") {
+        let newIndex = Math.floor(Math.random() * musicList.length);
+        playIndex(newIndex);
+      }
+    }
+
+    // 播放下一曲
+    function playNext() {
+      index++;
+      if (index === musicList.length) {
+        index = 0;
+      }
+      playIndex(index);
+    }
+
+    // 播放上一曲
+    function playPrev() {
+      index--;
+      if (index < 0) {
+        index = musicList.length - 1;
+      }
+      playIndex(index);
+    }
+
+    // 列表图标点击事件
+    listIcon.onclick = function () {
+      list.classList.toggle("show");
+      // insertAdjacentHTML
+    }
+
+    const lis = list.getElementsByTagName("li");
+    // 所有歌曲名称
+    const songTitles = list.getElementsByClassName("songTitle");
+    // 列表点击事件
+    list.onclick = function (event){
+      $("li.active").classList.remove("active");
+      if(event.target.tagName === "LI"){
+        index = [...lis].indexOf(event.target);
+        // console.log('li');
+        event.target.classList.add("active");
+      }else if(event.target.tagName === "SPAN"){
+        index = [...songTitles].indexOf(event.target);
+        // 获取父节点
+        const perent = event.target.parentNode;
+        perent.classList.add("active");
+        // console.log('span');
+      }
+      
+
+      // shouldPlay() === false 说明是暂停状态，取反，
+      // 然后我们要变成播放状态
+      if(!shouldPlay()){
+        playIcon.classList.add('hide');
+        pauseIcon.classList.remove("hide");
+      }
+      playIndex(index);
+      list.classList.remove("show");
+    }
+
+    // 播放音乐，传下标
+    function playIndex(i) {
+      index = i;
+      setListActive(index); // 修改播放列表中的选中元素
+      setAudio(index);
+      if (shouldPlay()) {
+        // 音乐播放
+        audioObject.play();
+      }
+    }
+
+    // 格式化时间
+    function secondToStr(second) {
+      let minute = parseInt(second / 60);
+      let s = parseInt(second % 60);
+      let formatTime = s >= 10 ? s : '0' + s;
+      return `${minute} : ${formatTime}`
+    }
+
+    // 初始化
+    function setAudio(index = 0) {
+      let currentAudio = musicList[index]; // 当前播放的音乐
+      title.innerText = currentAudio.title; // 歌名
+      author.innerText = currentAudio.author; // 歌手
+      audioObject.src = currentAudio.url; // 音乐地址路径
+      cover.style["background-image"] = `url(${currentAudio.cover})`; // 修改当前音乐的背景图片
+    }
+
+    // 渲染歌曲列表
+    function renderList() {
+      // list.remove("ul");
+      // console.log(11);
+      const ul = document.createElement("ul");
+      const doms = musicList.map((item,index)=>{
+        let li = document.createElement("li");
+        let span = document.createElement("span");
+        span.classList.add("songTitle")
+        span.append(index + 1 + ' ' + item.title);
+        li.append(span);
+        li.insertAdjacentHTML("beforeend", `
+        <span class="playMusic">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-music"></use>
+          </svg>
+        </span>
+        `)
+        return li
+      })
+      doms[index].classList.add("active");
+      ul.append(...doms);
+      list.append(ul);
+      // list.insertAdjacentHTML("beforeend", `${ul}`)
+    }
+
+    // 给当前播放的歌曲加上图标
+    function setListActive(idx){
+      [...lis].forEach((ele)=>{
+        ele.classList.remove("active");
+      })
+      lis[idx].classList.add("active");
+    }
+
+    // 播放状态
+    function shouldPlay() {
+      // 没有hide 是暂停状态，有hide 是播放状态
+      return playIcon.classList.contains('hide');
+    }
+
+  </script>
+</body>
+
+</html>

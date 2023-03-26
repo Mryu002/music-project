@@ -1,0 +1,48 @@
+[ 
+{
+    "id": "0",
+    "title": "真的吗",
+    "author": "莫文蔚",
+    "albumn": "我要说I Say",
+    "lyric": "https://jirengu.github.io/data-mock/huawei-music/lyric_真的吗.json",
+    "url": "https://jirengu.github.io/data-mock/huawei-music/莫文蔚-真的吗.mp3",
+    "cover": "https://jirengu.github.io/data-mock/huawei-music/真的吗.jpg"
+},    
+       
+{
+    "id": "1",
+    "title": "水星记",
+    "author": "郭顶",
+    "albumn": "飞行器的执行周期",
+    "lyric": "https://jirengu.github.io/data-mock/huawei-music/lyric_水星记.json",
+    "url": "https://jirengu.github.io/data-mock/huawei-music/水星记.mp3",
+    "cover": "https://jirengu.github.io/data-mock/huawei-music/水星记.jpg"
+},
+{
+  "id": "2",
+  "title": "后来的我们",
+  "author": "五月天",
+  "albumn": "后来的我们",
+  "lyric": "https://jirengu.github.io/data-mock/huawei-music/lyric_后来的我们.json",
+  "url": "https://jirengu.github.io/data-mock/huawei-music/后来的我们.mp3",
+  "cover": "https://jirengu.github.io/data-mock/huawei-music/后来的我们.jpg"
+},
+{
+  "id": "3",
+  "title": "假装",
+  "author": "陈雪凝",
+  "albumn": "拾陆",
+  "lyric": "https://jirengu.github.io/data-mock/huawei-music/lyric_假装.json",
+  "url": "https://jirengu.github.io/data-mock/huawei-music/假装.mp3",
+  "cover": "https://jirengu.github.io/data-mock/huawei-music/假装.jpg"
+},
+{
+  "id": "4",
+  "title": "烦恼歌",
+  "author": "张学友",
+  "albumn": "在你身边",
+  "lyric": "https://jirengu.github.io/data-mock/huawei-music/lyric_烦恼歌.json",
+  "url": "https://jirengu.github.io/data-mock/huawei-music/烦恼歌.mp3",
+  "cover": "https://jirengu.github.io/data-mock/huawei-music/烦恼歌.jpg"
+}
+]

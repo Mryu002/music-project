@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="//at.alicdn.com/t/c/font_3975595_qbzcggv5ret.js"></script>
+  <title>音乐播放器</title>
+  <style>
+    .icon {
+      width: 2em;
+      height: 2em;
+      vertical-align: -0.15em;
+      fill: currentColor;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .icon:hover {
+      opacity: 0.7;
+    }
+
+    .player .cover {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      /* 不懂，明天看看 */
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      z-index: -1;
+    }
+
+    /* 给背景图加个遮罩层 */
+    .player .cover::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    /* 播放面板样式 */
+    .player .panel {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 80px;
+      height: 160px;
+      padding: 32px;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.8);
+      border-radius: 25px;
+    }
+
+    /* 歌名 */
+    .player .panel .title {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    /* 歌手 */
+    .player .panel .author {
+      font-size: 16px;
+      margin: 12px 0;
+    }
+
+    /* 进度条的样式 */
+    .panel .progress .bar-container {
+      height: 6px;
+      background-color: #a3a3a3;
+      border-radius: 3px;
+      cursor: pointer;
+      /* overflow: hidden; */
+    }
+
+    .panel .progress .bar-container .bar {
+      position: relative;
+      height: 100%;
+      background-color: #fff;
+      border-radius: 3px;
+    }
+
+    /* 进度条上面的小球的样式 */
+    .progress .bar-container .bar .globule {
+      position: absolute;
+      top: -5px;
+      right: -10px;
+      display: block;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: red;
+    }
+
+    .progress .duration {
+      display: flex;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .progress .duration .total {
+      margin-left: auto;
+    }
+
+    /* 隐藏图标类名 */
+    .hide {
+      display: none;
+    }
+
+    .panel .control {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .icon-bofang,
+    .icon-zanting {
+      width: 3.5em;
+      height: 3.5em;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <div class="player">
+      <!-- 背景图 -->
+      <div class="cover" style="background-image: url(./assets/img/烦恼歌.jpg)"></div>
+      <!-- 播放面板 -->
+      <div class="panel">
+        <div class="title">歌名</div>
+        <div class="author">歌手</div>
+        <div class="progress">
+          <!-- 进度条 -->
+          <div class="bar-container">
+            <div class="bar" style="width:95%">
+              <!-- 进度条上面的小球 -->
+              <span class="globule"></span>
+            </div>
+          </div>
+          <!-- 时间 -->
+          <div class="duration">
+            <span class="cuurent">1:30</span>
+            <span class="total">4:15</span>
+          </div>
+        </div>
+        <!-- 控制面板 -->
+        <div class="control">
+          <svg class="icon icon-cycle" aria-hidden="true">
+            <use xlink:href="#icon-xunhuanbofang"></use>
+          </svg>
+          <svg class="icon icon-danquxunhuan hide" aria-hidden="true">
+            <use xlink:href="#icon-danquxunhuan"></use>
+          </svg>
+          <svg class="icon icon-suijisenlin hide" aria-hidden="true">
+            <use xlink:href="#icon-suijisenlin"></use>
+          </svg>
+
+          <svg class="icon icon-shangyishou" aria-hidden="true">
+            <use xlink:href="#icon-shangyishou"></use>
+          </svg>
+          <svg class="icon icon-bofang" aria-hidden="true">
+            <use xlink:href="#icon-bofang"></use>
+          </svg>
+          <svg class="icon icon-zanting hide" aria-hidden="true">
+            <use xlink:href="#icon-zanting"></use>
+          </svg>
+          <svg class="icon icon-xiayishou1" aria-hidden="true">
+            <use xlink:href="#icon-xiayishou1"></use>
+          </svg>
+          <svg class="icon icon-liebiao" aria-hidden="true">
+            <use xlink:href="#icon-liebiao"></use>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="list"></div>
+  </div>
+</body>
+
+</html>
